@@ -8,6 +8,7 @@ function Chat({ socket, username, room }) {
   const sendMessage = async () => {
     if (currentMessage !== "") {
       const messageData = {
+        type: "message",
         room: room,
         author: username,
         message: currentMessage,
@@ -18,17 +19,51 @@ function Chat({ socket, username, room }) {
       };
 
       await socket.emit("send_message", messageData);
+     
       setMessageList((list) => [...list, messageData]);
       setCurrentMessage("");
     }
   };
+  const joinData = () => {
+    return socket.emit("send_message",
+      {
+        type: "join_message",
+        room: room,
+        author: username,
+        message: `${username} has joined the room`,
+        time:
+          new Date(Date.now()).getHours() +
+          ":" +
+          new Date(Date.now()).getMinutes(),
+      }
+    );
+  }
+
+  // const quitRoom = () => {
+    
+  //   return socket.emit("send_message", 
+  //     {
+  //       type: "quit_message",
+  //       room: room,
+  //       author: username,
+  //       message: `${username} quit the room`,
+  //       time:
+  //         new Date(Date.now()).getHours() +
+  //         ":" +
+  //         new Date(Date.now()).getMinutes(),
+  //     }
+  //   )
+
+  // }
 
   useEffect(() => {
     socket.on("receive_message", (data) => {
-      setMessageList((list) => [...list, data]);
+      setMessageList((list) => [...list, data ]);
     });
+    joinData();
+    
   }, [socket]);
-
+  
   return (
     <div className="chat-window">
       <div className="chat-header">
@@ -36,25 +71,49 @@ function Chat({ socket, username, room }) {
       </div>
       <div className="room">
         <p>Chat Room: {room}</p>
+        
+      </div>
+      <div className="room">
+        <p>Your name: {username}</p>
       </div>
       <div className="chat-body">
+
         <ScrollToBottom className="message-container">
           {messageList.map((messageContent) => {
             return (
-              <div
-                className="message"
-                id={username === messageContent.author ? "you" : "other"}
-              >
-                <div>
-                  <div className="message-content">
-                    <p>{messageContent.message}</p>
+             <>
+             { 
+              // xử lý send message
+              messageContent.type === "join_message" ?
+                <div
+                  className="join-message"
+                  id={username === messageContent.author ? "you" : "other"}
+                >
+                  <div>
+                    <div className="join-message-content">
+                      <p>{messageContent.message}</p>
+                    </div>
+                   
                   </div>
-                  <div className="message-meta">
-                    <p id="time">{messageContent.time}</p>
-                    <p id="author">{messageContent.author}</p>
+                </div> 
+                :
+                // xử lý join_room
+                <div
+                  className="message"
+                  id={username === messageContent.author ? "you" : "other"}
+                >
+                  <div>
+                    <div className="message-content">
+                      <p>{messageContent.message}</p>
+                    </div>
+                    <div className="message-meta">
+                      <p id="time">{messageContent.time}</p>
+                      <p id="author">{messageContent.author}</p>
+                    </div>
                   </div>
-                </div>
-              </div>
+                </div> 
+                }
+             </>
             );
           })}
         </ScrollToBottom>
