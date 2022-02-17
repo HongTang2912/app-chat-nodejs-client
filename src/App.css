@@ -118,6 +118,8 @@ body {
   justify-content: flex-start;
 }
 
+
+
 #you .message-content {
   justify-content: flex-start;
   background-color: rgb(17, 17, 1);
@@ -139,6 +141,15 @@ body {
   color:#212121;
 }
 
+.join-message-content {
+  background-color: rgb(151, 225, 243);
+  padding: 10px;
+  border-radius: 5px;
+}
+
+.join-message {
+  padding: 10px;
+}
 #other .message-meta {
   justify-content: flex-end;
   margin-right: 5px;
